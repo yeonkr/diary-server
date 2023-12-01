@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { NoteModule } from './note/note.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(NoteModule);
 
   const config = new DocumentBuilder()
     .setTitle('Diary API')
