@@ -21,4 +21,10 @@ export class NoteService {
       where: { id: Number(id) },
     });
   }
+
+  async createDiary(data: Diary): Promise<Diary> {
+    return this.prismaService.diary.create({
+      data: data,
+    });
+  }
 }

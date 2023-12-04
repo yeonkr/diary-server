@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { NoteService } from '../service/note.service';
 import { Diary } from '@prisma/client';
 
@@ -19,5 +19,10 @@ export class NoteController {
   @Delete(':id')
   async deleteDiaryById(@Param('id') id: number): Promise<Diary | null> {
     return this.noteService.deleteDiaryById(id);
+  }
+
+  @Post()
+  async createDiary(@Body() data: Diary): Promise<Diary> {
+    return this.noteService.createDiary(data);
   }
 }
