@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { NoteService } from './note.service';
 import { Note } from '@prisma/client';
 
-@Controller('api/vi/note')
+@Controller('note')
 export class NoteController {
   constructor(private readonly noteService: NoteService) {}
 
