@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   UnauthorizedException,
@@ -8,6 +9,8 @@ import { CreateUserDto, LoginUserDto } from './dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
+const saltRounds = 10;
+
 @Injectable()
 export class UserService {
   constructor(
@@ -16,8 +19,33 @@ export class UserService {
   ) {}
 
   async createUser(data: CreateUserDto) {
-    return this.prisma.user.create({
-      data: data,
+    await this.checkIfUserExists(data.email);
+
+    try {
+      const hashedPassword = this.hashPassword(data.password);
+      await this.saveUser({ ...data, password: hashedPassword });
+      return {
+        message: '사용자가 생성되었습니다.',
+      };
+    } catch (error) {
+      throw new Error('사용자 생성에 실패했습니다.');
+    }
+  }
+
+  async checkIfUserExists(email: string) {
+    const user = await this.findByEmail(email);
+    if (user) {
+      throw new ConflictException('이미 존재하는 이메일입니다.');
+    }
+  }
+
+  hashPassword(password: string) {
+    return bcrypt.hashSync(password, saltRounds);
+  }
+
+  async saveUser(data: CreateUserDto) {
+    await this.prisma.user.create({
+      data,
     });
   }
 
