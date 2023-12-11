@@ -15,6 +15,7 @@ model User {
   email    String @unique
   name     String
   password String
+  notes    Note[]
 }
 
 model Note {
@@ -23,4 +24,7 @@ model Note {
   content   String
   createdAt DateTime @default(now())
   userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
