@@ -1,7 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { NoteService } from './note.service';
 import { Note } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
+import { CreateNoteDto } from './dto/note.dto';
+import { JwtAuthGuard } from 'src/user/jwt/jwt.guard';
+import { JwtPayload } from 'src/user/jwt/jwt.payload';
+import { GetTokenUser } from 'src/common/decorator/user.decorator';
 
+@ApiTags('Note')
 @Controller('note')
 export class NoteController {
   constructor(private readonly noteService: NoteService) {}
@@ -21,8 +35,13 @@ export class NoteController {
     return this.noteService.deleteNoteById(id);
   }
 
-  @Post()
-  async createNote(@Body() data: Note): Promise<Note> {
-    return this.noteService.createNote(data);
+  @UseGuards(JwtAuthGuard)
+  @Post('/create')
+  async createNote(
+    @GetTokenUser() user: JwtPayload,
+    @Body() data: CreateNoteDto,
+  ) {
+    const userId = user.id;
+    return this.noteService.createNote(data, userId);
   }
 }
