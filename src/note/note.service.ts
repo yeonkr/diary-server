@@ -4,14 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Note } from '@prisma/client';
 import { CreateNoteDto } from './dto/note.dto';
 
 @Injectable()
 export class NoteService {
   constructor(private prisma: PrismaService) {}
 
-  async fetchAllNote(): Promise<Note[]> {
+  async fetchAllNote() {
     return this.prisma.note.findMany();
   }
 

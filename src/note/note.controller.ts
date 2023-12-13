@@ -9,7 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { NoteService } from './note.service';
-import { Note } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateNoteDto } from './dto/note.dto';
 import { JwtAuthGuard } from 'src/user/jwt/jwt.guard';
@@ -22,7 +21,7 @@ export class NoteController {
   constructor(private readonly noteService: NoteService) {}
 
   @Get('/')
-  async fetchAllNote(): Promise<Note[]> {
+  async fetchAllNote() {
     return this.noteService.fetchAllNote();
   }
 
