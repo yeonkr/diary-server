@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Note } from '@prisma/client';
 import { CreateNoteDto } from './dto/note.dto';
@@ -31,10 +35,20 @@ export class NoteService {
     return note;
   }
 
-  async deleteNoteById(id: number): Promise<Note | null> {
-    return this.prisma.note.delete({
-      where: { id: Number(id) },
+  async deleteNoteById(id: number, userId: number) {
+    const note = await this.findNoteById(id);
+
+    if (note.userId !== userId) {
+      throw new ForbiddenException('삭제 권한이 없습니다.');
+    }
+
+    await this.prisma.note.deleteMany({
+      where: { id, userId },
     });
+
+    return {
+      message: '게시글이 삭제되었습니다.',
+    };
   }
 
   async createNote(createNoteDto: CreateNoteDto, userId: number) {

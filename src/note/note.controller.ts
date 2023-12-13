@@ -28,12 +28,17 @@ export class NoteController {
 
   @Get('/:id')
   async fetchNoteById(@Param('id', ParseIntPipe) id: number) {
-    return await this.noteService.fetchNoteById(id);
+    return this.noteService.fetchNoteById(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  async deleteNoteById(@Param('id') id: number): Promise<Note | null> {
-    return this.noteService.deleteNoteById(id);
+  async deleteNoteById(
+    @Param('id', ParseIntPipe) id: number,
+
+    @GetTokenUser() user: JwtPayload,
+  ) {
+    return this.noteService.deleteNoteById(id, user.id);
   }
 
   @UseGuards(JwtAuthGuard)
