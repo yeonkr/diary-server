@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -20,17 +21,17 @@ import { GetTokenUser } from 'src/common/decorator/user.decorator';
 export class NoteController {
   constructor(private readonly noteService: NoteService) {}
 
-  @Get()
+  @Get('/')
   async fetchAllNote(): Promise<Note[]> {
     return this.noteService.fetchAllNote();
   }
 
-  @Get(':id')
-  async fetchNoteById(@Param('id') id: number): Promise<Note | null> {
-    return this.noteService.fetchNoteById(id);
+  @Get('/:id')
+  async fetchNoteById(@Param('id', ParseIntPipe) id: number) {
+    return await this.noteService.fetchNoteById(id);
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   async deleteNoteById(@Param('id') id: number): Promise<Note | null> {
     return this.noteService.deleteNoteById(id);
   }
