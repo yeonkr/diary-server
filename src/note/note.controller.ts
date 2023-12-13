@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { NoteService } from './note.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateNoteDto } from './dto/note.dto';
 import { JwtAuthGuard } from 'src/user/jwt/jwt.guard';
 import { JwtPayload } from 'src/user/jwt/jwt.payload';
@@ -30,6 +30,10 @@ export class NoteController {
     return this.noteService.fetchNoteById(id);
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check to see if an authentication token is still valid.',
+  })
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   async deleteNoteById(
@@ -40,6 +44,10 @@ export class NoteController {
     return this.noteService.deleteNoteById(id, user.id);
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check to see if an authentication token is still valid.',
+  })
   @UseGuards(JwtAuthGuard)
   @Post('/create')
   async createNote(

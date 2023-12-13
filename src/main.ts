@@ -11,6 +11,7 @@ async function bootstrap() {
     .setTitle('Diary API')
     .setDescription('The Diary API Documentation')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
