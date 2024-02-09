@@ -3,11 +3,19 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { writeFileSync } from 'fs';
 import * as path from 'path';
+import * as expressBasicAuth from 'express-basic-auth';
 
 const PORT = 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(
+    ['/api'],
+    expressBasicAuth({
+      challenge: true,
+      users: { [process.env.SWAGGER_USER]: process.env.SWAGGER_PWD },
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Diary API')
