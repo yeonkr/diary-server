@@ -4,11 +4,25 @@ import { AppModule } from './app.module';
 import { writeFileSync } from 'fs';
 import * as path from 'path';
 import * as expressBasicAuth from 'express-basic-auth';
+import { ConfigService } from '@nestjs/config';
 
 const PORT = 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  setupBasicAuth(app);
+
+  const document = generateSwaggerDocument(app);
+  const outputPath = path.join(__dirname, '../generate/openapi.json');
+  writeFileSync(outputPath, JSON.stringify(document));
+
+  setupSwaggerUI(app, document);
+
+  await app.listen(PORT);
+}
+
+function setupBasicAuth(app) {
   app.use(
     ['/api'],
     expressBasicAuth({
@@ -16,7 +30,9 @@ async function bootstrap() {
       users: { [process.env.SWAGGER_USER]: process.env.SWAGGER_PWD },
     }),
   );
+}
 
+function generateSwaggerDocument(app) {
   const config = new DocumentBuilder()
     .setTitle('Diary API')
     .setDescription('The Diary API Documentation')
@@ -24,22 +40,23 @@ async function bootstrap() {
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
     .build();
 
-  const document = SwaggerModule.createDocument(app, config, {
+  return SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
   });
+}
 
-  const outputPath = path.join(__dirname, '../generate/openapi.json');
-  writeFileSync(outputPath, JSON.stringify(document));
+function setupSwaggerUI(app, document) {
+  const configService = app.get(ConfigService);
+  const openapiUrl = configService.get('SERVER_OPENAPI_URL', 'api');
 
-  SwaggerModule.setup('api', app, document, {
-    jsonDocumentUrl: `api/json`,
-    yamlDocumentUrl: `api/yaml`,
+  SwaggerModule.setup(openapiUrl, app, document, {
+    jsonDocumentUrl: `${openapiUrl}.json`,
+    yamlDocumentUrl: `${openapiUrl}.yaml`,
     explorer: true,
     customSiteTitle: 'api',
     swaggerOptions: {
       docExpansion: 'none',
       persistAuthorization: true,
-      // displayOperationId: true,
       operationsSorter: 'method',
       tagsSorter: 'alpha',
       tryItOutEnabled: true,
@@ -47,7 +64,6 @@ async function bootstrap() {
       deepLinking: true,
     },
   });
-
-  await app.listen(PORT);
 }
+
 bootstrap();
