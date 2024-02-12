@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto, LoginUserDto } from './dto/user.dto';
+import { CreateUserDto, EmailDuplicateDto, LoginUserDto } from './dto/user.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -11,6 +11,11 @@ export class UserController {
   @Post('/signup')
   async createUser(@Body() data: CreateUserDto) {
     return this.userService.createUser(data);
+  }
+
+  @Post('/check')
+  findEmail(@Body() data: EmailDuplicateDto) {
+    return this.userService.checkDuplicateEmail(data);
   }
 
   @Post('/login')

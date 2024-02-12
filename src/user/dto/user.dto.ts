@@ -29,3 +29,10 @@ export class LoginUserDto {
   @ApiProperty()
   password: string;
 }
+
+export class EmailDuplicateDto {
+  @IsEmail()
+  @IsNotEmpty()
+  @ApiProperty()
+  email: string;
+}
