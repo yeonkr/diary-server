@@ -10,6 +10,10 @@ const PORT = 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
   setupBasicAuth(app);
 
