@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -24,6 +25,8 @@ export class UserService {
     if (user) {
       throw new ConflictException('이미 존재하는 이메일입니다.');
     }
+
+    this.ValidateEmail(data.email);
 
     try {
       const hashedPassword = await this.hashPassword(data.password);
@@ -77,12 +80,22 @@ export class UserService {
     return bcrypt.hashSync(password, saltRounds);
   }
 
+  ValidateEmail(email: string) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      throw new BadRequestException('올바른 이메일 형식이 아닙니다.');
+    }
+  }
+
   async checkDuplicateEmail(data: EmailDuplicateDto) {
     const user = await this.findByEmail(data.email);
 
     if (user) {
       throw new ConflictException('이미 존재하는 이메일입니다.');
     }
+
+    this.ValidateEmail(data.email);
 
     return {
       message: '사용 가능한 이메일 입니다.',
