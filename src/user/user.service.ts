@@ -73,7 +73,26 @@ export class UserService {
 
   async getToken(id: number, email: string, name: string) {
     const payload = { id, email, name };
-    return this.jwtService.sign(payload);
+
+    const accessTokenOptions = {
+      expiresIn: 60 * 60,
+      secret: 'accessToken',
+    };
+
+    const refreshTokenOptions = {
+      expiresIn: 60 * 60 * 24 * 7,
+      secret: 'refreshToken',
+    };
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, accessTokenOptions),
+      this.jwtService.signAsync(payload, refreshTokenOptions),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   async hashPassword(password: string) {
