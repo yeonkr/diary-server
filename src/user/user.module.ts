@@ -13,7 +13,7 @@ import { PassportModule } from '@nestjs/passport';
       signOptions: { expiresIn: '1y' },
     }),
   ],
-  controllers: [UserController],
-  providers: [UserService, JwtStrategy],
+  controllers: [UserController, JwtStrategy],
+  providers: [UserService],
 })
 export class UserModule {}

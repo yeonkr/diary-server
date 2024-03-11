@@ -61,9 +61,11 @@ export class UserService {
 
     const token = await this.getToken(user.id, user.email, user.name);
 
+    await this.updateRefreshToken(user.id, token.accessToken);
+
     return {
       message: '로그인에 성공했습니다.',
-      token,
+      ...token,
     };
   }
 
@@ -92,6 +94,48 @@ export class UserService {
     return {
       accessToken,
       refreshToken,
+    };
+  }
+
+  async updateRefreshToken(id: number, refreshToken: string | null) {
+    const hashedRefreshToken = await this.hashPassword(refreshToken);
+
+    await this.prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        refreshToken: hashedRefreshToken,
+      },
+    });
+  }
+
+  async refreshTokens(id: number, refreshToken: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user || !user.refreshToken) {
+      throw new ForbiddenException('리프레쉬 토큰이 존재하지 않습니다.');
+    }
+
+    const refreshTokenMatches = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
+
+    if (!refreshTokenMatches) {
+      throw new ForbiddenException('리프레쉬 토큰이 일치하지 않습니다.');
+    }
+
+    const tokens = await this.getToken(user.id, user.email, user.name);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return {
+      message: '토큰이 갱신되었습니다.',
+      ...tokens,
     };
   }
 
