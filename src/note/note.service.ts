@@ -78,4 +78,22 @@ export class NoteService {
       message: '게시글이 생성되었습니다.',
     };
   }
+
+  async updateNote(userId: number, noteId: number, updateNote: CreateNoteDto) {
+    await this.findNoteById(userId, noteId);
+
+    await this.prisma.note.update({
+      where: {
+        id: noteId,
+      },
+      data: {
+        userId,
+        content: updateNote.content,
+      },
+    });
+
+    return {
+      message: '게시글이 수정되었습니다.',
+    };
+  }
 }

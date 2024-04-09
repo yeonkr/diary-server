@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -67,9 +68,22 @@ export class NoteController {
   @Delete('/:id')
   async deleteNoteById(
     @Param('id', ParseIntPipe) noteId: number,
-
     @GetTokenUser() user: JwtPayload,
   ) {
     return this.noteService.deleteNoteById(user.id, noteId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check to see if an authentication token is still valid.',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Patch('/:id')
+  async updateNote(
+    @GetTokenUser() user: JwtPayload,
+    @Param('id', ParseIntPipe) noteId: number,
+    @Body() updateNoteDto: CreateNoteDto,
+  ) {
+    return this.noteService.updateNote(user.id, noteId, updateNoteDto);
   }
 }
