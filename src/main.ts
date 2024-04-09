@@ -38,8 +38,8 @@ function setupBasicAuth(app) {
 
 function generateSwaggerDocument(app) {
   const config = new DocumentBuilder()
-    .setTitle('Diary API')
-    .setDescription('The Diary API Documentation')
+    .setTitle('NAYA API')
+    .setDescription('NAYA API Documentation')
     .setVersion('1.0')
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
     .build();

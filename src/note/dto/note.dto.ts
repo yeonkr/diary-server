@@ -5,10 +5,5 @@ export class CreateNoteDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
-  title: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty()
   content: string;
 }

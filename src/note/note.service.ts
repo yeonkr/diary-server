@@ -54,7 +54,6 @@ export class NoteService {
     await this.prisma.note.create({
       data: {
         userId,
-        title: createNoteDto.title,
         content: createNoteDto.content,
       },
     });
