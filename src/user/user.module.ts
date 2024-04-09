@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './jwt/jwt.strategy';
+import { AccessTokenStrategy } from './jwt/accessToken.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { RefreshTokenStrategy } from './jwt/refreshToken.strategy';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { PassportModule } from '@nestjs/passport';
       signOptions: { expiresIn: '1y' },
     }),
   ],
-  controllers: [UserController, JwtStrategy],
+  controllers: [UserController, AccessTokenStrategy, RefreshTokenStrategy],
   providers: [UserService],
 })
 export class UserModule {}
