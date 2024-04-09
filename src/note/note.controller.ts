@@ -20,14 +20,15 @@ import { GetTokenUser } from 'src/common/decorator/user.decorator';
 export class NoteController {
   constructor(private readonly noteService: NoteService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check to see if an authentication token is still valid.',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('/')
-  async fetchAllNote() {
-    return this.noteService.fetchAllNote();
-  }
-
-  @Get('/:id')
-  async fetchNoteById(@Param('id', ParseIntPipe) id: number) {
-    return this.noteService.fetchNoteById(id);
+  async fetchAllNote(@GetTokenUser() user: JwtPayload) {
+    return await this.noteService.fetchAllNote(user.id);
   }
 
   @ApiBearerAuth()
@@ -35,13 +36,13 @@ export class NoteController {
     summary: 'Check to see if an authentication token is still valid.',
   })
   @UseGuards(JwtAuthGuard)
-  @Delete('/:id')
-  async deleteNoteById(
-    @Param('id', ParseIntPipe) id: number,
-
+  @Get('/:id')
+  async findNoteById(
     @GetTokenUser() user: JwtPayload,
+    @Param('id', ParseIntPipe) noteId: number,
   ) {
-    return this.noteService.deleteNoteById(id, user.id);
+    const userId = user.id;
+    return await this.noteService.findNoteById(userId, noteId);
   }
 
   @ApiBearerAuth()
@@ -52,9 +53,23 @@ export class NoteController {
   @Post('/create')
   async createNote(
     @GetTokenUser() user: JwtPayload,
-    @Body() data: CreateNoteDto,
+    @Body() createNoteDto: CreateNoteDto,
   ) {
     const userId = user.id;
-    return this.noteService.createNote(data, userId);
+    return await this.noteService.createNote(userId, createNoteDto);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check to see if an authentication token is still valid.',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Delete('/:id')
+  async deleteNoteById(
+    @Param('id', ParseIntPipe) noteId: number,
+
+    @GetTokenUser() user: JwtPayload,
+  ) {
+    return this.noteService.deleteNoteById(user.id, noteId);
   }
 }

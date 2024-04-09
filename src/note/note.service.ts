@@ -10,39 +10,55 @@ import { CreateNoteDto } from './dto/note.dto';
 export class NoteService {
   constructor(private prisma: PrismaService) {}
 
-  async fetchAllNote() {
-    return this.prisma.note.findMany();
-  }
+  async fetchAllNote(userId: number) {
+    const notes = await this.prisma.note.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-  async fetchNoteById(id: number) {
-    const note = await this.findNoteById(id);
     return {
       message: '게시글이 조회되었습니다.',
-      data: note,
+      data: notes,
     };
   }
 
-  async findNoteById(id: number) {
+  async findNoteById(userId: number, noteId: number) {
     const note = await this.prisma.note.findUnique({
-      where: { id },
+      where: {
+        id: noteId,
+      },
     });
 
     if (!note) {
       throw new NotFoundException('게시글이 존재하지 않습니다.');
     }
 
-    return note;
-  }
-
-  async deleteNoteById(id: number, userId: number) {
-    const note = await this.findNoteById(id);
-
     if (note.userId !== userId) {
       throw new ForbiddenException('삭제 권한이 없습니다.');
     }
 
+    const copyNote = {
+      ...note,
+    };
+
+    return {
+      message: '게시글이 조회되었습니다.',
+      data: copyNote,
+    };
+  }
+
+  async deleteNoteById(userId: number, noteId: number) {
+    await this.findNoteById(userId, noteId);
+
     await this.prisma.note.deleteMany({
-      where: { id, userId },
+      where: {
+        id: noteId,
+        userId: userId,
+      },
     });
 
     return {
@@ -50,7 +66,7 @@ export class NoteService {
     };
   }
 
-  async createNote(createNoteDto: CreateNoteDto, userId: number) {
+  async createNote(userId: number, createNoteDto: CreateNoteDto) {
     await this.prisma.note.create({
       data: {
         userId,
