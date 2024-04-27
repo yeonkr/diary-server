@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateNoteDto } from './dto/note.dto';
+import { CreateNoteDto, UpdateNoteDto } from './dto/note.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
@@ -71,6 +71,7 @@ export class NoteService {
     await this.prisma.note.create({
       data: {
         userId,
+        title: createNoteDto.title,
         content: createNoteDto.content,
       },
     });
@@ -80,7 +81,7 @@ export class NoteService {
     };
   }
 
-  async updateNote(userId: number, noteId: number, updateNote: CreateNoteDto) {
+  async updateNote(userId: number, noteId: number, updateNote: UpdateNoteDto) {
     await this.findNoteById(userId, noteId);
 
     await this.prisma.note.update({
@@ -101,18 +102,28 @@ export class NoteService {
 
 @Injectable()
 export class QuestionService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly noteService: NoteService,
+  ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async sendQuestion() {
     const users = await this.prismaService.user.findMany();
+    const questions = [
+      '오늘은 무엇을 배우셨나요?',
+      '오늘의 하루는 어땠나요?',
+      '가장 기억에 남는 순간은 무엇이었나요?',
+      // 추후 따로 분리해서 관리 예정
+    ];
 
     for (const user of users) {
-      await this.prismaService.note.create({
-        data: {
-          userId: user.id,
-          content: 'ex) 오늘 하루 어떠셨나요?',
-        },
+      const randomIndex = Math.floor(Math.random() * questions.length);
+      const randomQuestion = questions[randomIndex];
+
+      await this.noteService.createNote(user.id, {
+        title: randomQuestion,
+        content: '',
       });
     }
 

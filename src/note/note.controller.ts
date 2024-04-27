@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { NoteService } from './note.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateNoteDto } from './dto/note.dto';
+import { CreateNoteDto, UpdateNoteDto } from './dto/note.dto';
 import { JwtAuthGuard } from 'src/user/jwt/jwt.guard';
 import { JwtPayload } from 'src/user/jwt/jwt.payload';
 import { GetTokenUser } from 'src/common/decorator/user.decorator';
@@ -82,7 +82,7 @@ export class NoteController {
   async updateNote(
     @GetTokenUser() user: JwtPayload,
     @Param('id', ParseIntPipe) noteId: number,
-    @Body() updateNoteDto: CreateNoteDto,
+    @Body() updateNoteDto: UpdateNoteDto,
   ) {
     return this.noteService.updateNote(user.id, noteId, updateNoteDto);
   }
