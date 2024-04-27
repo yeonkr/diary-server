@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { NoteController } from './note.controller';
-import { NoteService } from './note.service';
+import { NoteService, QuestionService } from './note.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ScheduleModule.forRoot()],
   controllers: [NoteController],
-  providers: [NoteService],
+  providers: [NoteService, QuestionService],
 })
 export class NoteModule {}
